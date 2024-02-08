@@ -11,9 +11,23 @@ datasource db {
 }
 
 model Users {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  userId        Int     @id @default(autoincrement())
+  kakaoId       Int?           
+  name          String        
+  email         String         @unique
+  password      String?         
+  Role          String         @default("user")
+  gender        gender
+  age           Int?
+  oneliner      String?         
+  createdAt     DateTime       @default(now()) 
+  updatedAt     DateTime       @updatedAt 
+  
 
   @@map("users")
+}
+
+enum gender {
+  male
+  female
 }
