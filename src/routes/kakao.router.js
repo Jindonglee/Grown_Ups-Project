@@ -4,17 +4,21 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-router.get("/kakao/sign-in", async (req, res) => {
-  const baseUrl = "https://kauth.kakao.com/oauth/authorize";
-  const config = {
-    client_id: process.env.KAKAO_ID,
-    redirect_uri: "http://localhost:3000/api/kakao/userInfo",
-    response_type: "code",
-  };
-  const params = new URLSearchParams(config).toString();
+router.get("/kakao/sign-in", async (req, res, next) => {
+  try {
+    const baseUrl = "https://kauth.kakao.com/oauth/authorize";
+    const config = {
+      client_id: process.env.KAKAO_ID,
+      redirect_uri: "http://localhost:3000/api/kakao/userInfo",
+      response_type: "code",
+    };
+    const params = new URLSearchParams(config).toString();
 
-  const finalUrl = `${baseUrl}?${params}`;
-  return res.redirect(finalUrl);
+    const finalUrl = `${baseUrl}?${params}`;
+    return res.redirect(finalUrl);
+  } catch (error) {
+    next(error);
+  }
 });
 
 router.get("/kakao/userInfo", async (req, res, next) => {
@@ -52,7 +56,7 @@ router.get("/kakao/userInfo", async (req, res, next) => {
       });
       // 카카오 로그인을 하지 않고 일반 가입한 사용자가 이메일이 같으면 오류코드를 띄워준다.
       if (user && !user.kakaoId) {
-        return res.status(401).json({ message: "이미 가입한 이메일입니다." });
+        return res.status(400).json({ message: "이미 가입한 이메일입니다." });
       }
       if (!user) {
         await prisma.users.create({
