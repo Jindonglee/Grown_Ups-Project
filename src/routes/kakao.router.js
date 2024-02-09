@@ -36,6 +36,7 @@ router.get("/kakao/userInfo", async (req, res, next) => {
         "Content-type": "application/x-www-form-urlencoded",
       },
     });
+
     const kakaoTokenData = await kakaoTokenRequest.json();
 
     if ("access_token" in kakaoTokenData) {
