@@ -2,26 +2,36 @@ import express from "express";
 import { prisma } from "../utils/prisma/index.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import nodemailer from "nodemailer";
 import authMiddleware from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
 
 // 이메일 보낼 아이디 설정
-// const { email_service, user, pass } = process.env;
+const { email_service, nodemailer_user, nodemailer_pass } = process.env;
 
-// const transporter = nodemailer.createTransport({
-//   service: email_service,
-//   auth: {
-//     user: user,
-//     pass: pass,
-//   },
-// });
+const transporter = nodemailer.createTransport({
+  service: email_service,
+  auth: {
+    user: nodemailer_user,
+    pass: nodemailer_pass,
+  },
+});
 
 router.post("/users/sign-up", async (req, res, next) => {
   try {
-    const { email, name, password, checkPw, gender, age, oneliner } = req.body;
+    const { email, name, password, checkPw, gender, age, oneliner, status } =
+      req.body;
 
-    if (!email || !password || !gender || !age || !checkPw || !name) {
+    if (
+      !email ||
+      !password ||
+      !gender ||
+      !age ||
+      !checkPw ||
+      !name ||
+      !status
+    ) {
       return res.status(400).json({
         success: false,
         message: "필수 정보를 모두 입력해주세요.",
@@ -59,12 +69,69 @@ router.post("/users/sign-up", async (req, res, next) => {
         gender,
         age,
         oneliner,
+        status,
+        isEmailValid: false,
       },
+    });
+
+    const url = `http://localhost:3018/api/users?email=${email}`;
+
+    await transporter.sendMail({
+      // 보내는 곳의 이름과, 메일 주소를 입력
+      from: `"Employ Compass" <${nodemailer_user}>`,
+      // 받는 곳의 메일 주소를 입력
+      to: email,
+      // 보내는 메일의 제목을 입력
+      subject: "[Employ Compass] 회원가입 인증 메일입니다.",
+      // 보내는 메일의 내용을 입력
+      // text: 일반 text로 작성된 내용
+      // html: html로 작성된 내용
+      html: `<form action="${url}" method="POST">
+      <h2 style="margin: 20px 0">[Employ Compass] 메일확인</h2>
+      <button style=" background-color: #ff2e00; color:#fff; width: 80px; height:40px; border-radius: 20px; border: none;">
+      가입확인</button>
+    </form>`,
     });
 
     return res.status(201).json({ email, name, gender, age, oneliner });
   } catch (err) {
     next(err);
+  }
+});
+
+// 이메일 인증 처리 관련 API (버튼 클릭 시 작동)
+router.post("/", async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email)
+      return res
+        .status(412)
+        .render("authResult", { message: "비정상적인 접근입니다.???" });
+
+    const emailValid = await users.findOne({
+      where: { email: email },
+      attributes: ["email", "isEmailValid"],
+    });
+
+    if (!emailValid)
+      return res.status(412).render("authResult", {
+        message: "해당 이메일은 요청된 이메일이 아닙니다.",
+      });
+    if (emailValid.isEmailValid)
+      return res
+        .status(412)
+        .render("authResult", { message: "이미 인증된 이메일 입니다." });
+
+    await Users.update({ isEmailValid: true }, { where: { email: email } });
+
+    return res
+      .status(201)
+      .render("authResult", { message: "인증이 완료되었습니다." });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(400)
+      .render("authResult", { message: "오류가 발생하였습니다." });
   }
 });
 
@@ -95,6 +162,23 @@ router.post("/users/login", async (req, res, next) => {
   });
 });
 
+// 내정보 조회
+router.get("/me", authMiddleware, async (req, res, next) => {
+  const user = res.user;
+
+  return res.json({
+    email: user.email || kakaoId,
+    name: user.name,
+    role: user.role,
+    gender: user.gender,
+    age: user.age,
+    onliner: user.oneliner,
+    status: user.status,
+    technology: user.technology,
+    createdAt: user.createdAt,
+  });
+});
+
 // 회원 탈퇴 api
 router.post("/users/exit", async (req, res) => {
   const { email, password } = req.body;
@@ -112,7 +196,7 @@ router.post("/users/exit", async (req, res) => {
       .json({ message: "이메일 또는 비밀번호가 일치하지 않습니다." });
   }
 
-  const isPasswordValid = await bcrypt.compare(password, user.password);
+  const isPasswordValid = bcrypt.compare(password, user.password);
 
   if (!isPasswordValid) {
     return res

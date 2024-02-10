@@ -22,7 +22,8 @@ model Users {
   oneliner   String? @map("oneliner")
   status     status  @map("status")
   technology String? @map("technology")
-  locked     locked? @default(lock) @map("locked")
+  locked     locked?  @map("locked")
+  isEmailValid  Boolean   @default(false) @map("isEmailValid")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
