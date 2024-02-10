@@ -11,6 +11,7 @@
     "express": "^4.18.2",
     "joi": "^17.12.1",
     "jsonwebtoken": "^9.0.2",
+    "nodemailer": "^6.9.9",
     "prisma": "^5.9.1",
     "winston": "^3.11.0"
   },
@@ -21,5 +22,7 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "yarn": "^1.22.21"
-  }
+  },
+  "repository": "https://github.com/Jindonglee/Grown_Ups-Project.git",
+  "author": "JSKim <jskim4695@gmail.com>"
 }
