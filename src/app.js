@@ -4,7 +4,7 @@ import postsRouter from "./routes/post.router.js";
 import commentsRouter from "./routes/comment.router.js";
 import kakaoRouter from "./routes/kakao.router.js";
 import followRouter from "./routes/follow.router.js";
-import logMiddleware from "./middlewares/log.router.js";
+import logMiddleware from "./middlewares/log.Middleware.js";
 import errorHandlingMiddleware from "./middlewares/error-handling.middleware.js";
 import cookieParser from "cookie-parser";
 import { swaggerUi, specs } from "./routes/swagger.js";
