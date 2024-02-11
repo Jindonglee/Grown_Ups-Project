@@ -18,3 +18,5 @@ export default function (req, res, next) {
 
   next();
 }
+
+// middlewares 폴더에 있는 파일이므로 log.router.js에서 log.middleware.js로 수정했습니다.
