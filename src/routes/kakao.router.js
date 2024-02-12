@@ -4,7 +4,7 @@ import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
-router.get("/kakao/sign-in", async (req, res, next) => {
+router.get("/kakao/sign-up", async (req, res, next) => {
   try {
     const baseUrl = "https://kauth.kakao.com/oauth/authorize";
     const config = {
@@ -21,7 +21,7 @@ router.get("/kakao/sign-in", async (req, res, next) => {
   }
 });
 
-router.get("/kakao/userInfo", async (req, res, next) => {
+router.get("/kakao/sign-in", async (req, res, next) => {
   try {
     const baseUrl = "https://kauth.kakao.com/oauth/token";
     const config = {
@@ -150,7 +150,7 @@ router.get("/naver/sign-in", async (req, res, next) => {
       const user = await prisma.users.findFirst({
         where: { email: userData.response.email },
       });
-      // 카카오 로그인을 하지 않고 일반 가입한 사용자가 이메일이 같으면 오류코드를 띄워준다.
+      // 네이버 로그인을 하지 않고 일반 가입한 사용자가 이메일이 같으면 오류코드를 띄워준다.
       if (user && !user.naverId) {
         return res.status(400).json({ message: "이미 가입한 이메일입니다." });
       }

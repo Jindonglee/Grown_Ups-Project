@@ -79,7 +79,7 @@ router.get(
         });
 
         if (checkFollower.length !== 2) {
-          return res.status(400).json({
+          return res.status(401).json({
             message:
               "이 유저의 follow정보는 비공개입니다. 열람하시려면 서로 follow한 상태이어야 합니다.",
           });
