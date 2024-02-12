@@ -12,7 +12,7 @@ datasource db {
 
 model Users {
   userId        Int     @id @default(autoincrement())
-  kakaoId       BigInt?     
+  kakaoId       String?     
   naverId       String?      
   name          String        
   email         String         @unique
