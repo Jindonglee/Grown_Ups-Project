@@ -23,8 +23,10 @@ router.get("/kakao/sign-up", async (req, res, next) => {
   }
 });
 
+/** 로그인 요청을 하고 콜백 받으면 실행 */
 router.get("/kakao/sign-in", async (req, res, next) => {
   try {
+    // 카카오 API에 토큰을 요청
     const baseUrl = "https://kauth.kakao.com/oauth/token";
     const config = {
       client_id: process.env.KAKAO_ID, //restAPI 키
@@ -42,8 +44,8 @@ router.get("/kakao/sign-in", async (req, res, next) => {
       },
     });
     const kakaoTokenData = await kakaoTokenRequest.json();
-    console.log(kakaoTokenData);
 
+    // 토큰 데이터로 유저 정보 요청 - 토큰데이터에는 카카오 api에서 발급해준 엑세스토큰과 리프레시토큰, 만료일자가 들어있다.
     if ("access_token" in kakaoTokenData) {
       const { access_token } = kakaoTokenData;
       const userRequest = await fetch("https://kapi.kakao.com/v2/user/me", {
@@ -62,7 +64,6 @@ router.get("/kakao/sign-in", async (req, res, next) => {
       }
 
       const kakaoId = userData.id.toString();
-      console.log(kakaoId);
 
       if (!user) {
         // user 없을 시 새로운 유저 생성
@@ -77,7 +78,7 @@ router.get("/kakao/sign-in", async (req, res, next) => {
         user = newUser;
       }
 
-      // 카카오에서 지급한 엑세스토큰과 리프레시토큰을 저장
+      // 카카오에서 지급한 엑세스토큰과 리프레시토큰을 저장 -> 회원탈퇴 시 필요
       res.cookie("kakao_access_token", kakaoTokenData.access_token, {
         maxAge: kakaoTokenData.expires_in * 1000,
       });
@@ -118,16 +119,16 @@ router.get("/kakao/sign-in", async (req, res, next) => {
 
 /** 카카오 로그아웃 */
 router.get("/kakao/logout", async (req, res, next) => {
-  const { kakao_access_token } = req.cookies;
-  const logOutRequest = await fetch("https://kapi.kakao.com/v1/user/logout", {
-    headers: {
-      Authorization: `Bearer ${kakao_access_token}`,
-      "Content-type": "application/json",
-    },
-  });
-  const cookies = Object.keys(req.cookies);
-
   try {
+    const { kakao_access_token } = req.cookies;
+    const logOutRequest = await fetch("https://kapi.kakao.com/v1/user/logout", {
+      headers: {
+        Authorization: `Bearer ${kakao_access_token}`,
+        "Content-type": "application/json",
+      },
+    });
+    const cookies = Object.keys(req.cookies);
+    // 토큰을 모두 지운다.
     cookies.forEach((cookie) => {
       res.clearCookie(cookie);
     });
@@ -182,6 +183,7 @@ router.get("/naver/sign-up", function (req, res) {
 });
 router.get("/naver/sign-in", async (req, res, next) => {
   try {
+    // 네이버 API에 토큰 발급을 요청
     const baseUrl = "https://nid.naver.com/oauth2.0/token";
     const config = {
       client_id: process.env.NAVER_ID, //restAPI 키
@@ -202,8 +204,8 @@ router.get("/naver/sign-in", async (req, res, next) => {
       },
     });
     const naverTokenData = await naverTokenRequest.json();
-    console.log(naverTokenData);
 
+    // 발급받은 엑세스 토큰으로 유저 정보를 요청
     if ("access_token" in naverTokenData) {
       const { access_token } = naverTokenData;
       const userRequest = await fetch("https://openapi.naver.com/v1/nid/me", {
@@ -282,13 +284,12 @@ router.get("/naver/withdrawal", authMiddleware, async (req, res, next) => {
   };
   const params = new URLSearchParams(config).toString();
   const finalUrl = `${baseUrl}?${params}`;
-  console.log(finalUrl);
-  const naverTokenDelete = await fetch(finalUrl, {
+
+  await fetch(finalUrl, {
     method: "GET",
   });
 
   const cookies = Object.keys(req.cookies);
-  const deleteResponse = await naverTokenDelete.json();
 
   await prisma.users.delete({
     where: { userId: +userId },
