@@ -75,7 +75,7 @@ router.post("/users/sign-up", async (req, res, next) => {
     });
 
     // TODO: 나중에 배포시 수정필요
-    const url = `http://localhost:3018/api/users/validation?email=${email}`;
+    const url = `http://localhost:3000/api/users/validation?email=${email}`;
 
     await transporter.sendMail({
       // 보내는 곳의 이름과, 메일 주소를 입력
