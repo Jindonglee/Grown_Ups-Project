@@ -1,4 +1,4 @@
-module.exports = function (err, req, res, next) {
+export default function (err, req, res, next) {
   // 에러를 출력합니다.
   console.error(err);
   if (err.name === "ValidationError") {

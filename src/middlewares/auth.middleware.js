@@ -13,7 +13,7 @@ export default async function (req, res, next) {
 
     if (!tokenValue) throw new Error("인증정보가 올바르지 않습니다.");
 
-    const token = jwt.verify(tokenValue, "custom-secret-key");
+    const token = jwt.verify(tokenValue, process.env.ACCESS_TOKEN_SECRET_KEY);
 
     if (!token.userId) throw new Error("인증정보가 올바르지 않습니다.");
 

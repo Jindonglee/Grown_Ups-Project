@@ -7,7 +7,7 @@ const router = express.Router();
 router.post("/token", async (req, res) => {
   const { refreshToken } = req.body;
 
-  const token = jwt.verify(refreshToken, "resumeToken");
+  const token = jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET_KEY);
   if (!token) {
     return res.status(401).end();
   }
@@ -24,10 +24,10 @@ router.post("/token", async (req, res) => {
 
   const newAccessToken = jwt.sign(
     { userId: user.userId },
-    "custom-secret-key",
+    process.env.ACCESS_TOKEN_SECRET_KEY,
     { expiresIn: "12h" }
   );
-  const newRefreshToken = jwt.sign({ userId: user.userId }, "resumeToken", {
+  const newRefreshToken = jwt.sign({ userId: user.userId }, process.env.REFRESH_TOKEN_SECRET_KEY, {
     expiresIn: "7d",
   });
 

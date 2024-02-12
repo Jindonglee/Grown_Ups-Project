@@ -22,7 +22,7 @@ model Users {
   oneliner   String? @map("oneliner")
   status     status  @map("status")
   technology String? @map("technology")
-  locked     locked?  @map("locked")
+  locked     locked? @default(unlock) @map("locked")
   isEmailValid  Boolean   @default(false) @map("isEmailValid")
 
   createdAt DateTime @default(now()) @map("createdAt")
@@ -41,7 +41,7 @@ model Posts {
   userId         Int    @map("userId")
   title          String @map("title")
   content        String @map("content") @db.Text
-  thumbnailImage String @map("thumbnailImage")
+  thumbnailImage String? @map("thumbnailImage")
   category       String @map("category")
 
   createdAt DateTime @default(now()) @map("createdAt")
@@ -95,7 +95,7 @@ model Comment_emoji {
 model Post_emoji {
   post_likeId String @id @default(uuid()) @map("post_likeId")
   postId      Int    @map("postId")
-  emojiCode   Int    @map("emojiCode")
+  emojiCode   String    @map("emojiCode")
 
   Posts Posts? @relation(fields: [postId], references: [postId])
 

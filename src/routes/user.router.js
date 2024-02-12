@@ -74,7 +74,8 @@ router.post("/users/sign-up", async (req, res, next) => {
       },
     });
 
-    const url = `http://localhost:3018/api/users?email=${email}`;
+    // TODO: 나중에 배포시 수정필요
+    const url = `http://localhost:3018/api/users/validation?email=${email}`;
 
     await transporter.sendMail({
       // 보내는 곳의 이름과, 메일 주소를 입력
@@ -86,11 +87,8 @@ router.post("/users/sign-up", async (req, res, next) => {
       // 보내는 메일의 내용을 입력
       // text: 일반 text로 작성된 내용
       // html: html로 작성된 내용
-      html: `<form action="${url}" method="POST">
-      <h2 style="margin: 20px 0">[Employ Compass] 메일확인</h2>
-      <button style=" background-color: #ff2e00; color:#fff; width: 80px; height:40px; border-radius: 20px; border: none;">
-      가입확인</button>
-    </form>`,
+      html: `<h2 style="margin: 20px 0">[Employ Compass] 메일확인</h2>
+      <a href="${url}" style="background-color: #ff2e00; color:#fff; text-decoration: none; padding: 10px 20px; border-radius: 20px;">가입확인</a>`,
     });
 
     return res.status(201).json({ email, name, gender, age, oneliner });
@@ -100,38 +98,36 @@ router.post("/users/sign-up", async (req, res, next) => {
 });
 
 // 이메일 인증 처리 관련 API (버튼 클릭 시 작동)
-router.post("/", async (req, res) => {
+router.get("/users/validation", async (req, res) => {
   try {
     const { email } = req.query;
     if (!email)
-      return res
-        .status(412)
-        .render("authResult", { message: "비정상적인 접근입니다.???" });
+      return res.status(412).send({ message: "비정상적인 접근입니다." });
 
-    const emailValid = await users.findOne({
+    const emailValid = await prisma.users.findFirst({
       where: { email: email },
-      attributes: ["email", "isEmailValid"],
+      select: {
+        email: true,
+        isEmailValid: true,
+      },
     });
 
     if (!emailValid)
-      return res.status(412).render("authResult", {
+      return res.status(412).send({
         message: "해당 이메일은 요청된 이메일이 아닙니다.",
       });
     if (emailValid.isEmailValid)
-      return res
-        .status(412)
-        .render("authResult", { message: "이미 인증된 이메일 입니다." });
+      return res.status(412).send({ message: "이미 인증된 이메일 입니다." });
 
-    await Users.update({ isEmailValid: true }, { where: { email: email } });
+    await prisma.users.update({
+      where: { email: email },
+      data: { isEmailValid: true },
+    });
 
-    return res
-      .status(201)
-      .render("authResult", { message: "인증이 완료되었습니다." });
+    return res.status(201).send({ message: "인증이 완료되었습니다." });
   } catch (err) {
     console.error(err);
-    return res
-      .status(400)
-      .render("authResult", { message: "오류가 발생하였습니다." });
+    return res.status(400).send({ message: "오류가 발생하였습니다." });
   }
 });
 
@@ -149,12 +145,26 @@ router.post("/users/login", async (req, res, next) => {
   if (!bcrypt.compare(password, user.password))
     return res.status(401).json({ message: "비밀번호가 일치하지 않습니다." });
 
-  const accessToken = jwt.sign({ userId: user.userId }, "custom-secret-key", {
-    expiresIn: "12h",
-  });
-  const refreshToken = jwt.sign({ userId: user.userId }, "resumeToken", {
-    expiresIn: "7d",
-  });
+  if (!user.isEmailValid) {
+    return res
+      .status(401)
+      .json({ message: "이메일 인증을 완료해야 로그인이 가능합니다." });
+  }
+
+  const accessToken = jwt.sign(
+    { userId: user.userId },
+    process.env.ACCESS_TOKEN_SECRET_KEY,
+    {
+      expiresIn: "12h",
+    }
+  );
+  const refreshToken = jwt.sign(
+    { userId: user.userId },
+    process.env.REFRESH_TOKEN_SECRET_KEY,
+    {
+      expiresIn: "7d",
+    }
+  );
 
   return res.json({
     accessToken,
@@ -167,7 +177,8 @@ router.get("/me", authMiddleware, async (req, res, next) => {
   const user = res.user;
 
   return res.json({
-    email: user.email || kakaoId,
+    userId: user.userId,
+    email: user.email || user.kakaoId,
     name: user.name,
     role: user.role,
     gender: user.gender,
@@ -177,6 +188,49 @@ router.get("/me", authMiddleware, async (req, res, next) => {
     technology: user.technology,
     createdAt: user.createdAt,
   });
+});
+
+// 내정보 수정
+router.patch("/me/:userId", async (req, res, next) => {
+  try {
+    const userId = parseInt(req.params.userId);
+
+    const { age, oneliner, status, technology, password } = req.body;
+
+    // 유저 비밀번호 추출
+    const user = await prisma.users.findFirst({
+      where: { userId: userId },
+      select: { password: true },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "유저를 찾을 수 없습니다." });
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordValid) {
+      return res.status(400).json({ message: "비밀번호가 일치하지 않습니다." });
+    }
+
+    // 유저 정보 업데이트
+    const updatedUser = await prisma.users.update({
+      where: { userId: userId },
+      data: {
+        password,
+        age,
+        oneliner,
+        status,
+        technology,
+      },
+    });
+
+    return res.json({
+      message: "내정보가 성공적으로 업데이트되었습니다.",
+    });
+  } catch (error) {
+    return next(error);
+  }
 });
 
 // 회원 탈퇴 api
@@ -191,9 +245,7 @@ router.post("/users/exit", async (req, res) => {
   });
 
   if (!user) {
-    return res
-      .status(400)
-      .json({ message: "이메일 또는 비밀번호가 일치하지 않습니다." });
+    return res.status(400).json({ message: "유저 정보가 없습니다." });
   }
 
   const isPasswordValid = bcrypt.compare(password, user.password);
