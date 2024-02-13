@@ -106,7 +106,7 @@ router.get("/kakao/sign-in", async (req, res, next) => {
       res.cookie("authorization", `Bearer ${accessToken}`);
       res.cookie("refreshToken", refreshToken);
 
-      // 유저 정보와 성공메시지를 반환
+      // 유저 정보와 성공메시지를 반환 //TODO: 프론트 구현되면 메인화면으로 리다이렉트
       return res.json({ message: "로그인에 성공하셨습니다." });
     } else {
       // 엑세스 토큰이 없으면 로그인페이지로 리다이렉트
@@ -260,6 +260,7 @@ router.get("/naver/sign-in", async (req, res, next) => {
       res.cookie("authorization", `Bearer ${accessToken}`);
       res.cookie("refreshToken", refreshToken);
 
+      //TODO: 프론트 구현되면 메인화면으로 리다이렉트
       return res.json({ message: "로그인에 성공하셨습니다." });
     } else {
       return res.redirect("/api/naver/sign-in");
