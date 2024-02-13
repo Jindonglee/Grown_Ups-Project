@@ -11,9 +11,109 @@ datasource db {
 }
 
 model Users {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
+  userId     Int     @id @default(autoincrement()) @map("userId")
+  kakaoId    String? @map("kakaoId")
+  email      String? @unique @map("email")
+  name       String? @map("name")
+  password   String? @map("password")
+  role       role    @default(user) @map("role")
+  gender     String? @map("gender")
+  age        Int?    @map("age")
+  oneliner   String? @map("oneliner")
+  status     status  @map("status")
+  technology String? @map("technology")
+  locked     locked? @default(unlock) @map("locked")
 
-  @@map("users")
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  posts     Posts[]
+  comments  Comments[]
+  follower  Follow[]   @relation("follower")
+  following Follow[]   @relation("following")
+
+  @@map("Users")
+}
+
+model Posts {
+  postId         Int    @id @default(autoincrement()) @map("postId")
+  userId         Int    @map("userId")
+  title          String @map("title")
+  content        String @map("content") @db.Text
+  thumbnailImage String? @map("thumbnailImage")
+  category       String @map("category")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user       Users        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  comments   Comments[]
+  post_emoji Post_emoji[]
+
+  @@map("Posts")
+}
+
+model Comments {
+  commentId Int    @id @default(autoincrement()) @map("commentId")
+  userId    Int    @map("userId")
+  postId    Int    @map("postId")
+  content   String @map("content")
+
+  createdAt DateTime @default(now()) @map("createdAt")
+  updatedAt DateTime @updatedAt @map("updatedAt")
+
+  user Users @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  post Posts @relation(fields: [postId], references: [postId], onDelete: Cascade)
+
+  comment_emoji Comment_emoji[]
+
+  @@map("Comments")
+}
+
+model Follow {
+  followId    Int @id @default(autoincrement()) @map("followId")
+  followerId  Int @map("followerId")
+  followingId Int @map("followingId")
+
+  follower  Users @relation("follower", fields: [followerId], references: [userId], onDelete: Cascade)
+  following Users @relation("following", fields: [followingId], references: [userId], onDelete: Cascade)
+
+  @@map("Follow")
+}
+
+model Comment_emoji {
+  comment_likeId String @id @default(uuid()) @map("comment_likeId")
+  commentId      Int    @map("commentId")
+  emojiCode      Int    @map("emojiCode")
+
+  comment Comments @relation(fields: [commentId], references: [commentId], onDelete: Cascade)
+
+  @@map("Comment_like")
+}
+
+model Post_emoji {
+  post_likeId String @id @default(uuid()) @map("post_likeId")
+  postId      Int    @map("postId")
+  emojiCode   String    @map("emojiCode")
+
+  Posts Posts? @relation(fields: [postId], references: [postId])
+
+  @@map("Post_emoji")
+}
+
+enum role {
+  admin
+  user
+  employee
+}
+
+enum status {
+  worker
+  job_seeker
+  change_job
+}
+
+enum locked {
+  lock
+  unlock
 }
