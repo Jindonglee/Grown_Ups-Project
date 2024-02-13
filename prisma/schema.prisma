@@ -13,11 +13,15 @@ datasource db {
 model Users {
   userId     Int     @id @default(autoincrement()) @map("userId")
   kakaoId    String? @map("kakaoId")
+<<<<<<< HEAD
   naverId    String? @map("naverId")
+=======
+>>>>>>> origin/comments
   email      String? @unique @map("email")
   name       String? @map("name")
   password   String? @map("password")
   role       role    @default(user) @map("role")
+<<<<<<< HEAD
   gender     gender @map("gender")
   age        Int?    @map("age")
   oneliner   String? @map("oneliner")
@@ -25,6 +29,14 @@ model Users {
   technology String? @map("technology")
   locked     locked? @default(unlock) @map("locked")
   isEmailValid  Boolean   @default(false) @map("isEmailValid")
+=======
+  gender     String? @map("gender")
+  age        Int?    @map("age")
+  oneliner   String? @map("oneliner")
+  status     status  @map("status")
+  technology String? @map("technology")
+  locked     locked? @default(unlock) @map("locked")
+>>>>>>> origin/comments
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")
@@ -42,7 +54,11 @@ model Posts {
   userId         Int    @map("userId")
   title          String @map("title")
   content        String @map("content") @db.Text
+<<<<<<< HEAD
   thumbnailImage String? @map("thumbnailImage")
+=======
+  thumbnailImage String @map("thumbnailImage")
+>>>>>>> origin/comments
   category       String @map("category")
 
   createdAt DateTime @default(now()) @map("createdAt")
@@ -96,7 +112,11 @@ model Comment_emoji {
 model Post_emoji {
   post_likeId String @id @default(uuid()) @map("post_likeId")
   postId      Int    @map("postId")
+<<<<<<< HEAD
   emojiCode   String    @map("emojiCode")
+=======
+  emojiCode   Int    @map("emojiCode")
+>>>>>>> origin/comments
 
   Posts Posts? @relation(fields: [postId], references: [postId])
 
@@ -118,9 +138,12 @@ enum status {
 enum locked {
   lock
   unlock
+<<<<<<< HEAD
 }
 
 enum gender {
   male
   female
+=======
+>>>>>>> origin/comments
 }
