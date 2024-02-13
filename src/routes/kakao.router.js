@@ -117,52 +117,6 @@ router.get("/kakao/sign-in", async (req, res, next) => {
   }
 });
 
-/** 카카오 로그아웃 */
-router.get("/kakao/logout", async (req, res, next) => {
-  try {
-    const { kakao_access_token } = req.cookies;
-    const logOutRequest = await fetch("https://kapi.kakao.com/v1/user/logout", {
-      headers: {
-        Authorization: `Bearer ${kakao_access_token}`,
-        "Content-type": "application/json",
-      },
-    });
-    const cookies = Object.keys(req.cookies);
-    // 토큰을 모두 지운다.
-    cookies.forEach((cookie) => {
-      res.clearCookie(cookie);
-    });
-    return res.json({ message: "로그아웃 하셨습니다." });
-  } catch (err) {
-    next(err);
-  }
-});
-
-/** 카카오 회원탈퇴 */
-router.get("/kakao/withdrawal", authMiddleware, async (req, res, next) => {
-  const { kakao_access_token } = req.cookies;
-  const { userId } = req.user;
-  await fetch("https://kapi.kakao.com/v1/user/unlink", {
-    headers: {
-      Authorization: `Bearer ${kakao_access_token}`,
-      "Content-type": "application/json",
-    },
-  });
-  const cookies = Object.keys(req.cookies);
-  await prisma.users.delete({
-    where: { userId: +userId },
-  });
-
-  try {
-    cookies.forEach((cookie) => {
-      res.clearCookie(cookie);
-    });
-    return res.json({ message: "회원탈퇴 하셨습니다." });
-  } catch (err) {
-    next(err);
-  }
-});
-
 /** 네이버 로그인 */
 let redirectURI = encodeURI(process.env.NAVER_REDIRECT);
 
@@ -267,41 +221,6 @@ router.get("/naver/sign-in", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
-  }
-});
-
-/** 네이버 회원탈퇴 */
-router.get("/naver/withdrawal", authMiddleware, async (req, res, next) => {
-  const { naver_access_token, authorization } = req.cookies;
-  const { userId } = req.user;
-  const baseUrl = "https://nid.naver.com/oauth2.0/token";
-  const config = {
-    client_id: process.env.NAVER_ID, //restAPI 키
-    client_secret: process.env.NAVER_SECRET, //보안 키
-    grant_type: "delete",
-    access_token: naver_access_token,
-    redirect_uri: redirectURI,
-    service_provider: "naver",
-  };
-  const params = new URLSearchParams(config).toString();
-  const finalUrl = `${baseUrl}?${params}`;
-
-  await fetch(finalUrl, {
-    method: "GET",
-  });
-
-  const cookies = Object.keys(req.cookies);
-
-  await prisma.users.delete({
-    where: { userId: +userId },
-  });
-  try {
-    cookies.forEach((cookie) => {
-      res.clearCookie(cookie);
-    });
-    return res.json({ message: "회원탈퇴 하셨습니다." });
-  } catch (err) {
-    next(err);
   }
 });
 

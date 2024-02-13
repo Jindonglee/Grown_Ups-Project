@@ -21,7 +21,7 @@ model Users {
   gender     gender @map("gender")
   age        Int?    @map("age")
   oneliner   String? @map("oneliner")
-  status     status  @map("status")
+  status     status  @default(job_seeker) @map("status")
   technology String? @map("technology")
   locked     locked? @default(unlock) @map("locked")
   isEmailValid  Boolean   @default(false) @map("isEmailValid")

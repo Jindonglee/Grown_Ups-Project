@@ -23,15 +23,7 @@ router.post("/users/sign-up", async (req, res, next) => {
     const { email, name, password, checkPw, gender, age, oneliner, status } =
       req.body;
 
-    if (
-      !email ||
-      !password ||
-      !gender ||
-      !age ||
-      !checkPw ||
-      !name ||
-      !status
-    ) {
+    if (!email || !password || !gender || !checkPw || !name || !status) {
       return res.status(400).json({
         success: false,
         message: "필수 정보를 모두 입력해주세요.",
@@ -178,7 +170,7 @@ router.get("/me", authMiddleware, async (req, res, next) => {
 
   return res.json({
     userId: user.userId,
-    email: user.email || user.kakaoId,
+    email: user.email,
     name: user.name,
     role: user.role,
     gender: user.gender,
@@ -234,33 +226,37 @@ router.patch("/me/:userId", async (req, res, next) => {
 });
 
 // 회원 탈퇴 api
-router.post("/users/exit", async (req, res) => {
-  const { email, password } = req.body;
+router.get("/users/exit", authMiddleware, async (req, res, next) => {
+  const { kakao_access_token, naver_access_token } = req.cookies;
+  const { userId } = req.body;
+
+  // 카카오 토큰이 있으면 카카오 회원탈퇴 함수 호출
+  if (kakao_access_token) {
+    return kakaoWithdrawal(req, res, next);
+  }
+
+  // 네이버 토큰이 있으면 네이버 회원탈퇴 함수 호출
+  if (naver_access_token) {
+    return naverWithdrawal(req, res, next);
+  }
 
   // 사용자 인증
-  const user = await prisma.users.findFirst({
-    where: {
-      email,
-    },
-  });
+  if (!kakao_access_token && !naver_access_token) {
+    const user = await prisma.users.findFirst({
+      where: {
+        userId: +userId,
+      },
+    });
 
-  if (!user) {
-    return res.status(400).json({ message: "유저 정보가 없습니다." });
+    if (!user) {
+      return res.status(400).json({ message: "유저 정보가 없습니다." });
+    }
   }
-
-  const isPasswordValid = bcrypt.compare(password, user.password);
-
-  if (!isPasswordValid) {
-    return res
-      .status(400)
-      .json({ message: "이메일 또는 비밀번호가 일치하지 않습니다." });
-  }
-
   try {
     // 사용자 삭제
     await prisma.users.delete({
       where: {
-        email,
+        userId: +userId,
       },
     });
 
@@ -271,5 +267,75 @@ router.post("/users/exit", async (req, res) => {
       .json({ message: "탈퇴 과정에서 오류가 발생했습니다." });
   }
 });
+
+/** 카카오 회원탈퇴 */
+const kakaoWithdrawal = async (req, res, next) => {
+  const { kakao_access_token } = req.cookies;
+  const { userId } = req.user;
+
+  try {
+    // 카카오 회원탈퇴 요청
+    await fetch("https://kapi.kakao.com/v1/user/unlink", {
+      headers: {
+        Authorization: `Bearer ${kakao_access_token}`,
+        "Content-type": "application/json",
+      },
+    });
+
+    // 사용자 정보 삭제
+    await prisma.users.delete({
+      where: { userId: +req.user },
+    });
+
+    // 모든 쿠키 제거
+    const cookies = Object.keys(req.cookies);
+    cookies.forEach((cookie) => {
+      res.clearCookie(cookie);
+    });
+
+    return res.json({ message: "회원탈퇴 하셨습니다." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+/** 네이버 회원탈퇴 */
+const naverWithdrawal = async (req, res, next) => {
+  const { naver_access_token } = req.cookies;
+  const { userId } = req.user;
+  const baseUrl = "https://nid.naver.com/oauth2.0/token";
+  const config = {
+    client_id: process.env.NAVER_ID, //restAPI 키
+    client_secret: process.env.NAVER_SECRET, //보안 키
+    grant_type: "delete",
+    access_token: naver_access_token,
+    redirect_uri: process.env.NAVER_REDIRECT,
+    service_provider: "naver",
+  };
+  const params = new URLSearchParams(config).toString();
+  const finalUrl = `${baseUrl}?${params}`;
+
+  try {
+    // 네이버 회원탈퇴 요청
+    await fetch(finalUrl, {
+      method: "GET",
+    });
+
+    // 사용자 정보 삭제
+    await prisma.users.delete({
+      where: { userId: +userId },
+    });
+
+    // 모든 쿠키 제거
+    const cookies = Object.keys(req.cookies);
+    cookies.forEach((cookie) => {
+      res.clearCookie(cookie);
+    });
+
+    return res.json({ message: "회원탈퇴 하셨습니다." });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export default router;
