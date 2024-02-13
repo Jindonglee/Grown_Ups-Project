@@ -20,14 +20,13 @@ const specs = swaggereJsdoc(options);
 /**
  * @swagger
  * paths:
- *  /api/sign-up:
+ *  /api/users/sign-up:
  *    post:
  *      tags:
  *      - users
  *      summary: 회원가입
  *      description: 회원가입
  *      requestBody:
- *        required: true
  *        content:
  *          application/json:
  *            schema:
@@ -35,22 +34,31 @@ const specs = swaggereJsdoc(options);
  *              properties:
  *                email:
  *                  type: string
+ *                  required: true
  *                password:
  *                  type : string
+ *                  required: true
  *                passwordConfirm:
  *                  type : string
+ *                  required: true
  *                name:
  *                  type : string
+ *                  required: true
  *                age:
  *                  type : integer
+ *                  required: false
  *                gender:
  *                  type : string
+ *                  required: false
  *                status:
  *                  type : string
+ *                  required: true
  *                oneliner:
  *                  type : string
+ *                  required: false
  *                technology:
  *                  type : string
+ *                  required: false
  *      produces:
  *      - application/json
  *      responses:
@@ -60,7 +68,29 @@ const specs = swaggereJsdoc(options);
  *        description: 이미 존재하는 이메일입니다.
  *       400:
  *        description: 요청 값 올바르지 않음.
- *  /api/sign-in:
+ *  /api/users/validation:
+ *    get:
+ *      tags:
+ *      - users
+ *      summary: 이메일 인증
+ *      description: 이메일 인증 처리
+ *      parameters:
+ *        - name: email
+ *          in: query
+ *          description: 인증 이메일 입력
+ *          required: true
+ *          schema:
+ *            type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       201:
+ *        description: 인증 성공
+ *       400:
+ *        description: 오류 발생
+ *       412:
+ *        description: 이메일 인증 오류 발생
+ *  /api/users/login:
  *    post:
  *      tags:
  *      - users
@@ -83,8 +113,8 @@ const specs = swaggereJsdoc(options);
  *       200:
  *        description: 로그인 성공
  *       401:
- *        description: 이메일 혹은 비밀번호가 일치하지 않음
- *  /api/users:
+ *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 이메일 인증 미완료
+ *  /api/me:
  *    get:
  *      tags:
  *      - users
@@ -95,6 +125,7 @@ const specs = swaggereJsdoc(options);
  *      responses:
  *       200:
  *        description: 유저 정보 조회 성공
+ *  /api/me/{userId}:
  *    patch:
  *     tags:
  *       - users
@@ -110,13 +141,47 @@ const specs = swaggereJsdoc(options);
  *                 type: string
  *               age:
  *                 type : integer
- *               gender:
+ *               oneliner:
+ *                 type : string
+ *               status:
+ *                 type : string
+ *               technology:
+ *                 type : string
+ *               password:
  *                 type : string
  *     responses:
  *       200 :
  *          description: 사용자 정보 변경 성공.
+ *       400 :
+ *          description : 비밀번호 불일치
  *       404 :
  *          description : 사용자 정보가 존재하지 않습니다.
+ *  /api/users/exit:
+ *    post:
+ *      tags:
+ *      - users
+ *      summary: 회원 탈퇴
+ *      description: 회원 탈퇴
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                email:
+ *                  type: string
+ *                password:
+ *                  type : string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 회원 탈퇴 성공
+ *       400:
+ *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 유저 정보 없음
+ *       500:
+ *        description: 탈퇴 과정에서 오류 발생
  *  /api/refresh:
  *    post:
  *      tags:
