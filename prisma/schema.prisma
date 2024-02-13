@@ -24,6 +24,7 @@ model Users {
   status     status  @map("status")
   technology String? @map("technology")
   locked     locked? @default(unlock) @map("locked")
+  isEmailValid  Boolean   @default(false) @map("isEmailValid")
 
   createdAt DateTime @default(now()) @map("createdAt")
   updatedAt DateTime @updatedAt @map("updatedAt")

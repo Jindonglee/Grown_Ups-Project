@@ -1,9 +1,10 @@
 import express from "express";
 import UsersRouter from "./routes/user.router.js";
-import postsRouter from "./routes/post.router.js";
+// import postsRouter from "./routes/post.router.js";
 import commentsRouter from "./routes/comment.router.js";
 import kakaoRouter from "./routes/kakao.router.js";
 import followRouter from "./routes/follow.router.js";
+import AuthRouter from "./routes/auth.router.js";
 import logMiddleware from "./middlewares/log.router.js";
 import errorHandlingMiddleware from "./middlewares/error-handling.middleware.js";
 import cookieParser from "cookie-parser";
@@ -22,7 +23,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api", [
   UsersRouter,
-  postsRouter,
+  AuthRouter,
+  // postsRouter,
   commentsRouter,
   kakaoRouter,
   followRouter,
