@@ -29,7 +29,5 @@
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "yarn": "^1.22.21"
-  },
-  "repository": "git@github.com:Jindonglee/Grown_Ups-Project.git",
-  "author": "jindonglee <dropnowon@gmail.com>"
+  }
 }
