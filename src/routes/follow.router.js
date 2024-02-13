@@ -178,6 +178,7 @@ router.get("/follow/:userId", async (req, res, next) => {
   return res.status(200).json({ follower: follower, following: following });
 });
 
+// tech 기반 팔로우 유저 추천
 router.get("/recommend", authMiddleware, async (req, res, next) => {
   const user = req.user;
 
@@ -210,8 +211,6 @@ router.get("/recommend", authMiddleware, async (req, res, next) => {
     },
     select: { userId: true, name: true },
   });
-
-  console.log(recommendUser[1]);
 
   let len = recommendUser.length;
   if (recommendUser.length > 10) len = 10;
