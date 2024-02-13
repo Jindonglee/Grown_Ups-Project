@@ -182,7 +182,37 @@ const specs = swaggereJsdoc(options);
  *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 유저 정보 없음
  *       500:
  *        description: 탈퇴 과정에서 오류 발생
- *  /api/refresh:
+ *  /api/kakao/sign-in:
+ *    get:
+ *      tags:
+ *      - kakao
+ *      summary: 카카오 계정 로그인
+ *      description: 카카오 계정 로그인
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       redirect:
+ *        description: 로그인 성공
+ *    post:
+ *      tags:
+ *      - kakao
+ *      summary: 카카오 계정 토큰 발급
+ *      description: 카카오 계정 토큰 발급
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                kakaoId:
+ *                  type: integer
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       redirect:
+ *        description: 로그인 성공
+ *  /api/token:
  *    post:
  *      tags:
  *      - token
