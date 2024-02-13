@@ -1,6 +1,6 @@
 import express from "express";
 import UsersRouter from "./routes/user.router.js";
-// import postsRouter from "./routes/post.router.js";
+import postsRouter from "./routes/post.router.js";
 import commentsRouter from "./routes/comment.router.js";
 import kakaoRouter from "./routes/kakao.router.js";
 import followRouter from "./routes/follow.router.js";
@@ -24,7 +24,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(specs));
 app.use("/api", [
   UsersRouter,
   AuthRouter,
-  // postsRouter,
+  postsRouter,
   commentsRouter,
   kakaoRouter,
   followRouter,
