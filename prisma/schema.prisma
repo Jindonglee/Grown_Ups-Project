@@ -30,6 +30,7 @@ model Users {
   updatedAt DateTime @updatedAt @map("updatedAt")
 
   posts     Posts[]
+  post_emoji Post_emoji[]
   comments  Comments[]
   follower  Follow[]   @relation("follower")
   following Follow[]   @relation("following")
@@ -42,7 +43,6 @@ model Posts {
   userId         Int    @map("userId")
   title          String @map("title")
   content        String @map("content") @db.Text
-  thumbnailImage String? @map("thumbnailImage")
   category       String @map("category")
 
   createdAt DateTime @default(now()) @map("createdAt")
@@ -51,6 +51,7 @@ model Posts {
   user       Users        @relation(fields: [userId], references: [userId], onDelete: Cascade)
   comments   Comments[]
   post_emoji Post_emoji[]
+  thumbnail Thumbnail[]
 
   @@map("Posts")
 }
@@ -95,12 +96,25 @@ model Comment_emoji {
 
 model Post_emoji {
   post_likeId String @id @default(uuid()) @map("post_likeId")
+  userId      Int    @map("userId")
   postId      Int    @map("postId")
   emojiCode   String    @map("emojiCode")
 
-  Posts Posts? @relation(fields: [postId], references: [postId])
+  user       Users        @relation(fields: [userId], references: [userId], onDelete: Cascade)
+  post Posts @relation(fields: [postId], references: [postId])
 
   @@map("Post_emoji")
+}
+
+model Thumbnail {
+  thumbnailId String @id @default(uuid()) @map("thumbnailId")
+  postId      Int    @map("postId")
+  thumbnailUrl    String   @map("thumbnailUrl")
+  thumbnailKey      String    @map("thumbnailKey")
+
+  post Posts @relation(fields: [postId], references: [postId])
+
+  @@map("Thumbnail")
 }
 
 enum role {
