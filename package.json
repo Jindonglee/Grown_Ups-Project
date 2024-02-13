@@ -4,7 +4,8 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "nodemon ./src/app.js"
+    "dev": "nodemon ./src/app.js",
+    "start": "node ./src/app.js"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.511.0",
@@ -26,8 +27,10 @@
   "devDependencies": {
     "add": "^2.0.6",
     "nodemon": "^3.0.3",
+    "prettier": "^3.2.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "yarn": "^1.22.21"
-  }
+  },
+  "repository": "https://github.com/Jindonglee/Grown_Ups-Project.git"
 }
