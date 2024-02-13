@@ -13,9 +13,9 @@ router.post("/follow", authMiddleware, async (req, res, next) => {
     return res
       .status(400)
       .json({ message: "follow하려는 유저의 정보가 올바르지 않습니다." });
-    
-  if(userId === followingId)
-    return res.status(400).json({message: "본인을 팔로우할 수 없습니다."});
+
+  if (userId === followingId)
+    return res.status(400).json({ message: "본인을 팔로우할 수 없습니다." });
 
   const user = await prisma.users.findFirst({
     where: { userId: +userId },
@@ -176,6 +176,54 @@ router.get("/follow/:userId", async (req, res, next) => {
   console.log(follower, following);
 
   return res.status(200).json({ follower: follower, following: following });
+});
+
+router.get("/recommend", authMiddleware, async (req, res, next) => {
+  const user = req.user;
+
+  const tech = await prisma.users.findFirst({
+    where: { userId: user.userId },
+    select: {
+      technology: true,
+    },
+  });
+
+  if (!tech.technology)
+    return res.status(400).json({ message: "technology 데이터가 없습니다." });
+
+  const techData = JSON.parse(tech.technology);
+
+  const recommendUser = await prisma.users.findMany({
+    where: {
+      AND: [
+        {
+          OR: [
+            { technology: { contains: techData[0] } },
+            { technology: { contains: techData[1] } },
+            { technology: { contains: techData[2] } },
+            { technology: { contains: techData[3] } },
+            { technology: { contains: techData[4] } },
+          ],
+        },
+        { NOT: { userId: user.userId } },
+      ],
+    },
+    select: { userId: true, name: true },
+  });
+
+  console.log(recommendUser[1]);
+
+  let len = recommendUser.length;
+  if (recommendUser.length > 10) len = 10;
+
+  let result = [];
+
+  for (let i = 0; i < len; i++) {
+    let rand_num = Math.floor(Math.random() * recommendUser.length);
+    result.push(recommendUser[rand_num]);
+  }
+
+  return res.status(200).json(result);
 });
 
 export default router;

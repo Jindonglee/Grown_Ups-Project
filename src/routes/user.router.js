@@ -158,6 +158,9 @@ router.post("/users/login", async (req, res, next) => {
     }
   );
 
+  res.cookie('authorization', `Bearer ${accessToken}`);
+  res.cookie('refreshToken', `Brearer ${refreshToken}`);
+
   return res.json({
     accessToken,
     refreshToken,

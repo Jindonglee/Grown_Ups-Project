@@ -322,6 +322,19 @@ const specs = swaggereJsdoc(options);
  *        description: 팔로워, 팔로잉 수 출력
  *       400:
  *        description: 유저 정보가 올바르지 않습니다.
+ *  /api/recommend:
+ *    get:
+ *      tags:
+ *      - follow
+ *      summary: 팔로우 유저 추천천
+ *      description: tech가 겹치는 유저 추천
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 추천 유저의 userId, 이름 목록 출력
+ *       400:
+ *        description: technology 데이터 없음음
  *  /api/endpoint/{postId}:
  *    post:
  *      tags:
