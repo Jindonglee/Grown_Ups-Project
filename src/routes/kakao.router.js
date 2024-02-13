@@ -43,6 +43,7 @@ router.get("/kakao/sign-in", async (req, res, next) => {
         "Content-type": "application/x-www-form-urlencoded",
       },
     });
+
     const kakaoTokenData = await kakaoTokenRequest.json();
 
     // 토큰 데이터로 유저 정보 요청 - 토큰데이터에는 카카오 api에서 발급해준 엑세스토큰과 리프레시토큰, 만료일자가 들어있다.
