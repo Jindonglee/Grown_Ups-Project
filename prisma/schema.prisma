@@ -13,14 +13,15 @@ datasource db {
 model Users {
   userId     Int     @id @default(autoincrement()) @map("userId")
   kakaoId    String? @map("kakaoId")
+  naverId    String? @map("naverId")
   email      String? @unique @map("email")
   name       String? @map("name")
   password   String? @map("password")
   role       role    @default(user) @map("role")
-  gender     String?  @map("gender")
-  age        Int?     @map("age")
+  gender     gender @map("gender")
+  age        Int?    @map("age")
   oneliner   String? @map("oneliner")
-  status     status  @map("status")
+  status     status  @default(job_seeker) @map("status")
   technology String? @map("technology")
   locked     locked? @default(unlock) @map("locked")
   isEmailValid  Boolean   @default(false) @map("isEmailValid")
@@ -117,4 +118,9 @@ enum status {
 enum locked {
   lock
   unlock
+}
+
+enum gender {
+  male
+  female
 }
