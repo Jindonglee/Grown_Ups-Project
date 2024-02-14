@@ -68,22 +68,25 @@ router.post('/endpoint/:postId', authMiddleware, uploadS3, async (req, res) => {
     } 
 
     const files = req.files; 
+    const thumbnailDataArray = [];
 
     for (const file of files) {
       const thumbnailUrl = file.location;
       const thumbnailKey = file.key;
 
-      await prisma.thumbnail.create({
+      const createdThumbnail = await prisma.thumbnail.create({
         data: {
           postId: +postId,
           thumbnailKey: thumbnailKey,
           thumbnailUrl: thumbnailUrl,
         },
       });
+    
+      thumbnailDataArray.push(createdThumbnail);
     }
 
     console.log(req.file);
-    res.status(200).json({ success: true, message: '이미지가 성공적으로 업로드되었습니다' });
+    res.status(200).json({ success: true, message: '이미지가 성공적으로 업로드되었습니다', thumbnails: thumbnailDataArray });
   
   } catch (error) {
     if (error instanceof multer.MulterError) {
@@ -225,7 +228,7 @@ router.post('/save-emoji/:postId', authMiddleware, async (req, res) => {
     });
 
     console.log('이모지가 성공적으로 저장되었습니다:', createdEmoji);
-    res.status(200).json({ success: true, message: '이모지가 성공적으로 저장되었습니다' });
+    res.status(200).json({ success: true, message: '이모지가 성공적으로 저장되었습니다', createdEmoji: createdEmoji });
   
   } catch (error) {
     console.error('이모지 저장 오류:', error);
@@ -311,11 +314,13 @@ router.get("/posts", authMiddleware, async (req, res, next) => {
       },
       post_emoji : {
         select : {
+          postLikedId: true,
           emojiCode : true
         }
       },
       thumbnail: { 
         select: {
+          thumbnailId: true,
           thumbnailUrl: true,
         },
       },
@@ -358,11 +363,13 @@ router.get("/category", async (req, res, next) => {
       }, */
       post_emoji: {
         select: {
+          postLikedId: true,
           emojiCode: true,
         },
       },
       thumbnail: { 
         select: {
+          thumbnailId: true,
           thumbnailUrl: true,
         },
       },
@@ -389,11 +396,13 @@ router.get("/posts/:postId", authMiddleware, async (req, res, next) => {
       updatedAt: true,
       post_emoji: {
         select: {
+          postLikedId: true,
           emojiCode: true,
         },
       },
       thumbnail: {
         select: {
+          thumbnailId: true,
           thumbnailUrl: true,
         },
       },
