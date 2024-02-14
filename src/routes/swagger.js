@@ -219,6 +219,32 @@ const specs = swaggereJsdoc(options);
  *        description: refreshToken 값 올바르지 않음
  *       401:
  *        description: refreshToken이 유저가 발급받은 토큰과 일치하지 않음
+ *  /api/kakao/token:
+ *    get:
+ *      tags:
+ *      - token
+ *      summary: 카카오 AccessToken 재발급
+ *      description: 카카오 토큰 재발급
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       201:
+ *        description: 카카오 엑세스토큰이 발급되었습니다.
+ *       400:
+ *        description: 카카오 리프레시 토큰이 없습니다.
+ *  /api/naver/token:
+ *    get:
+ *      tags:
+ *      - token
+ *      summary:  네이버 AccessToken 재발급
+ *      description: 네이버 토큰 재발급
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       201:
+ *        description: 네이버 엑세스토큰이 발급되었습니다.
+ *       400:
+ *        description: 네이버 리프레시 토큰이 없습니다.
  *  /api/follow:
  *    post:
  *      tags:
