@@ -142,7 +142,6 @@ router.get("/kakao/token", async (req, res, next) => {
       },
     });
     const kakaoTokenData = await kakaoTokenRequest.json();
-    console.log(kakaoTokenData);
 
     res.cookie("kakao_access_token", kakaoTokenData.access_token, {
       maxAge: kakaoTokenData.expires_in * 1000,
@@ -289,7 +288,6 @@ router.get("/naver/token", async (req, res, next) => {
       },
     });
     const naverTokenData = await naverTokenRequest.json();
-    console.log(naverTokenData);
 
     res.cookie("kakao_access_token", naverTokenData.access_token, {
       maxAge: naverTokenData.expires_in * 1000,

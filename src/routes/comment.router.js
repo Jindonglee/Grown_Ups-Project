@@ -199,15 +199,15 @@ router.delete(
       },
     });
 
-    if(!comment) {
-        return res.status(404).json({message: "존재하지 않는 댓글입니다."});
+    if (!comment) {
+      return res.status(404).json({ message: "존재하지 않는 댓글입니다." });
     }
 
     await prisma.comments.delete({
-        where: {commentId: comment.commentId}
-    })
+      where: { commentId: comment.commentId },
+    });
 
-    return res.status(200).json({message: "댓글 삭제 완료."});
+    return res.status(200).json({ message: "댓글 삭제 완료." });
   }
 );
 

@@ -89,7 +89,6 @@ router.post("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
       thumbnailDataArray.push(createdThumbnail);
     }
 
-    console.log(req.file);
     res.status(200).json({
       success: true,
       message: "이미지가 성공적으로 업로드되었습니다",
@@ -123,8 +122,7 @@ router.post("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
 router.delete("/endpoint/:postId", authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const { postId } = req.params;
-  const {thumbnailId} = req.body;
-  console.log(thumbnailId);
+  const { thumbnailId } = req.body;
   const arr = thumbnailId.split(", ");
 
   const post = await prisma.posts.findFirst({
@@ -186,8 +184,6 @@ router.put("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
   const thumbnailId = req.body.thumbnailId;
   const arr = thumbnailId.split(", ");
 
-  console.log("머야이거 = ", thumbnailId, arr);
-
   try {
     const post = await prisma.posts.findFirst({
       where: {
@@ -198,25 +194,11 @@ router.put("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
     if (!post)
       return res.status(404).json({ message: "게시글이 존재하지 않습니다." });
 
-    // const thumbnail = await prisma.thumbnail.findFirst({
-    //   where: {
-    //     thumbnailId: thumbnailId,
-    //   },
-    // });
-
-    // if (!thumbnail) {
-    //   return res
-    //     .status(404)
-    //     .json({ message: "썸네일 이미지를 찾을 수 없습니다." });
-    // }
-
     if (post.userId !== userId) {
       return res.status(404).json({ message: "잘못된 접근입니다." });
     }
     const files = req.files;
     const thumbnailDataArray = [];
-
-    //----------------------------------------------------------
 
     const thumbnails = await prisma.thumbnail.findMany({
       where: { postId: +postId },
@@ -289,25 +271,6 @@ router.put("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
       }
     });
 
-    //------------------------------------------------------------
-
-    // for (const file of files) {
-    //   const thumbnailUrl = file.location;
-    //   const thumbnailKey = file.key;
-
-    //   const result = await prisma.thumbnail.update({
-    //     where: {
-    //       thumbnailId: thumbnail.thumbnailId,
-    //     },
-    //     data: {
-    //       thumbnailKey: thumbnailKey,
-    //       thumbnailUrl: thumbnailUrl,
-    //     },
-    //   });
-
-    //   thumbnailDataArray.push(result);
-    // }
-
     console.log("이미지가 성공적으로 수정되었습니다.");
     res.status(200).json({
       success: true,
@@ -344,8 +307,6 @@ router.post("/save-emoji/:postId", authMiddleware, async (req, res) => {
   const postId = req.params.postId;
   const emojiCode = req.body.emojiCode;
 
-  console.log(emojiCode);
-
   const post = await prisma.posts.findFirst({
     where: {
       postId: +postId,
@@ -367,7 +328,7 @@ router.post("/save-emoji/:postId", authMiddleware, async (req, res) => {
       data: {
         emojiCode: emojiCode,
         postId: +postId,
-        userId: +userId
+        userId: +userId,
       },
     });
 
@@ -502,12 +463,6 @@ router.get("/category", async (req, res, next) => {
       content: true,
       category: true,
       updatedAt: true,
-      /**
-      user: {
-        select: {
-          name: true,
-        },
-      }, */
       post_emoji: {
         select: {
           post_likeId: true,
