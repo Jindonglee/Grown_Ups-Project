@@ -1,18 +1,18 @@
-import swaggerUi from 'swagger-ui-express';
-import swaggereJsdoc from 'swagger-jsdoc';
+import swaggerUi from "swagger-ui-express";
+import swaggereJsdoc from "swagger-jsdoc";
 
 const options = {
   swaggerDefinition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: '취업 나침반 API',
-      version: '1.0.0',
-      description: 'API with express',
+      title: "취업 나침반 API",
+      version: "1.0.0",
+      description: "API with express",
     },
-    host: 'localhost:3000',
-    basePath: '/',
+    host: "localhost:3000",
+    basePath: "/",
   },
-  apis: ['./src/routes/*.js', './swagger/*'],
+  apis: ["./src/routes/*.js", "./swagger/*"],
 };
 
 const specs = swaggereJsdoc(options);
@@ -20,14 +20,13 @@ const specs = swaggereJsdoc(options);
 /**
  * @swagger
  * paths:
- *  /api/sign-up:
+ *  /api/users/sign-up:
  *    post:
  *      tags:
  *      - users
  *      summary: 회원가입
  *      description: 회원가입
  *      requestBody:
- *        required: true
  *        content:
  *          application/json:
  *            schema:
@@ -35,22 +34,33 @@ const specs = swaggereJsdoc(options);
  *              properties:
  *                email:
  *                  type: string
+ *                  required: true
  *                password:
  *                  type : string
- *                passwordConfirm:
+ *                  required: true
+ *                checkPw:
  *                  type : string
+ *                  required: true
  *                name:
  *                  type : string
+ *                  required: true
  *                age:
  *                  type : integer
+ *                  required: false
  *                gender:
  *                  type : string
+ *                  required: true
+ *                  default: female
  *                status:
  *                  type : string
+ *                  required: true
+ *                  default: job_seeker
  *                oneliner:
  *                  type : string
+ *                  required: false
  *                technology:
  *                  type : string
+ *                  required: false
  *      produces:
  *      - application/json
  *      responses:
@@ -60,7 +70,29 @@ const specs = swaggereJsdoc(options);
  *        description: 이미 존재하는 이메일입니다.
  *       400:
  *        description: 요청 값 올바르지 않음.
- *  /api/sign-in:
+ *  /api/users/validation:
+ *    get:
+ *      tags:
+ *      - users
+ *      summary: 이메일 인증
+ *      description: 이메일 인증 처리
+ *      parameters:
+ *        - name: email
+ *          in: query
+ *          description: 인증 이메일 입력
+ *          required: true
+ *          schema:
+ *            type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       201:
+ *        description: 인증 성공
+ *       400:
+ *        description: 오류 발생
+ *       412:
+ *        description: 이메일 인증 오류 발생
+ *  /api/users/login:
  *    post:
  *      tags:
  *      - users
@@ -83,8 +115,8 @@ const specs = swaggereJsdoc(options);
  *       200:
  *        description: 로그인 성공
  *       401:
- *        description: 이메일 혹은 비밀번호가 일치하지 않음
- *  /api/users:
+ *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 이메일 인증 미완료
+ *  /api/me:
  *    get:
  *      tags:
  *      - users
@@ -95,6 +127,7 @@ const specs = swaggereJsdoc(options);
  *      responses:
  *       200:
  *        description: 유저 정보 조회 성공
+ *  /api/me/{userId}:
  *    patch:
  *     tags:
  *       - users
@@ -110,14 +143,59 @@ const specs = swaggereJsdoc(options);
  *                 type: string
  *               age:
  *                 type : integer
- *               gender:
+ *               oneliner:
+ *                 type : string
+ *               status:
+ *                 type : string
+ *               technology:
+ *                 type : string
+ *               password:
  *                 type : string
  *     responses:
  *       200 :
  *          description: 사용자 정보 변경 성공.
+ *       400 :
+ *          description : 비밀번호 불일치
  *       404 :
  *          description : 사용자 정보가 존재하지 않습니다.
- *  /api/refresh:
+ *  /api/users/exit:
+ *    get:
+ *      tags:
+ *      - users
+ *      summary: 회원 탈퇴
+ *      description: 회원 탈퇴
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 회원 탈퇴 성공
+ *       400:
+ *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 유저 정보 없음
+ *       500:
+ *        description: 탈퇴 과정에서 오류 발생
+ *  /api/kakao/sign-up:
+ *    get:
+ *      tags:
+ *      - social-login
+ *      summary: 카카오 계정 로그인
+ *      description: 카카오 계정 로그인 [인증 페이지로](https://jd-develop.shop/api/kakao/sign-up) 카카오 인증페이지로 이동.
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       redirect:
+ *        description: 로그인 성공
+ *  /api/naver/sign-up:
+ *    get:
+ *      tags:
+ *      - social-login
+ *      summary: 네이버 계정 로그인
+ *      description: 네이버 계정 로그인 [인증 페이지로](http://localhost:3000/api/naver/sign-up) 네이버 인증페이지로 이동.
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       redirect:
+ *        description: 로그인 성공
+ *  /api/token:
  *    post:
  *      tags:
  *      - token
@@ -227,6 +305,19 @@ const specs = swaggereJsdoc(options);
  *        description: 팔로워, 팔로잉 수 출력
  *       400:
  *        description: 유저 정보가 올바르지 않습니다.
+ *  /api/recommend:
+ *    get:
+ *      tags:
+ *      - follow
+ *      summary: 팔로우 유저 추천천
+ *      description: tech가 겹치는 유저 추천
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 추천 유저의 userId, 이름 목록 출력
+ *       400:
+ *        description: technology 데이터 없음음
  *  /api/endpoint/{postId}:
  *    post:
  *      tags:
