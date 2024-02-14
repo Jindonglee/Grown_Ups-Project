@@ -1,18 +1,18 @@
-import swaggerUi from 'swagger-ui-express';
-import swaggereJsdoc from 'swagger-jsdoc';
+import swaggerUi from "swagger-ui-express";
+import swaggereJsdoc from "swagger-jsdoc";
 
 const options = {
   swaggerDefinition: {
-    openapi: '3.0.0',
+    openapi: "3.0.0",
     info: {
-      title: 'sparta-resume API',
-      version: '1.0.0',
-      description: 'API with express',
+      title: "취업 나침반 API",
+      version: "1.0.0",
+      description: "API with express",
     },
-    host: 'localhost:3000',
-    basePath: '/',
+    host: "localhost:3000",
+    basePath: "/",
   },
-  apis: ['./src/routes/*.js', './swagger/*'],
+  apis: ["./src/routes/*.js", "./swagger/*"],
 };
 
 const specs = swaggereJsdoc(options);
@@ -38,7 +38,7 @@ const specs = swaggereJsdoc(options);
  *                password:
  *                  type : string
  *                  required: true
- *                passwordConfirm:
+ *                checkPw:
  *                  type : string
  *                  required: true
  *                name:
@@ -49,10 +49,12 @@ const specs = swaggereJsdoc(options);
  *                  required: false
  *                gender:
  *                  type : string
- *                  required: false
+ *                  required: true
+ *                  default: female
  *                status:
  *                  type : string
  *                  required: true
+ *                  default: job_seeker
  *                oneliner:
  *                  type : string
  *                  required: false
@@ -157,22 +159,11 @@ const specs = swaggereJsdoc(options);
  *       404 :
  *          description : 사용자 정보가 존재하지 않습니다.
  *  /api/users/exit:
- *    post:
+ *    get:
  *      tags:
  *      - users
  *      summary: 회원 탈퇴
  *      description: 회원 탈퇴
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                email:
- *                  type: string
- *                password:
- *                  type : string
  *      produces:
  *      - application/json
  *      responses:
@@ -182,31 +173,23 @@ const specs = swaggereJsdoc(options);
  *        description: 이메일 혹은 비밀번호가 일치하지 않음 / 유저 정보 없음
  *       500:
  *        description: 탈퇴 과정에서 오류 발생
- *  /api/kakao/sign-in:
+ *  /api/kakao/sign-up:
  *    get:
  *      tags:
- *      - kakao
+ *      - social-login
  *      summary: 카카오 계정 로그인
- *      description: 카카오 계정 로그인
+ *      description: 카카오 계정 로그인 [인증 페이지로](https://jd-develop.shop/api/kakao/sign-up) 카카오 인증페이지로 이동.
  *      produces:
  *      - application/json
  *      responses:
  *       redirect:
  *        description: 로그인 성공
- *    post:
+ *  /api/naver/sign-up:
+ *    get:
  *      tags:
- *      - kakao
- *      summary: 카카오 계정 토큰 발급
- *      description: 카카오 계정 토큰 발급
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              type: object
- *              properties:
- *                kakaoId:
- *                  type: integer
+ *      - social-login
+ *      summary: 네이버 계정 로그인
+ *      description: 네이버 계정 로그인 [인증 페이지로](http://localhost:3000/api/naver/sign-up) 네이버 인증페이지로 이동.
  *      produces:
  *      - application/json
  *      responses:
