@@ -158,9 +158,6 @@ router.post("/users/login", async (req, res, next) => {
     }
   );
 
-  res.cookie('authorization', `Bearer ${accessToken}`);
-  res.cookie('refreshToken', `Brearer ${refreshToken}`);
-
   return res.json({
     accessToken,
     refreshToken,
@@ -169,20 +166,23 @@ router.post("/users/login", async (req, res, next) => {
 
 // 내정보 조회
 router.get("/me", authMiddleware, async (req, res, next) => {
-  const user = res.user;
+  const {userId} = req.user;
 
-  return res.json({
-    userId: user.userId,
-    email: user.email,
-    name: user.name,
-    role: user.role,
-    gender: user.gender,
-    age: user.age,
-    onliner: user.oneliner,
-    status: user.status,
-    technology: user.technology,
-    createdAt: user.createdAt,
+  const user = await prisma.users.findFirst({
+    where: {userId: userId},
+    select: {
+        email: true,
+        name: true,
+        role: true,
+        gender: true,
+        age: true,
+        status: true,
+        technology: true,
+        oneliner: true,
+    }
   });
+
+  return res.json({data: user});
 });
 
 // 내정보 수정
@@ -231,7 +231,7 @@ router.patch("/me/:userId", async (req, res, next) => {
 // 회원 탈퇴 api
 router.get("/users/exit", authMiddleware, async (req, res, next) => {
   const { kakao_access_token, naver_access_token } = req.cookies;
-  const { userId } = req.body;
+  const { userId } = req.user;
 
   // 카카오 토큰이 있으면 카카오 회원탈퇴 함수 호출
   if (kakao_access_token) {
@@ -255,12 +255,18 @@ router.get("/users/exit", authMiddleware, async (req, res, next) => {
       return res.status(400).json({ message: "유저 정보가 없습니다." });
     }
   }
+
   try {
     // 사용자 삭제
     await prisma.users.delete({
       where: {
         userId: +userId,
       },
+    });
+
+    const cookies = Object.keys(req.cookies);
+    cookies.forEach((cookie) => {
+      res.clearCookie(cookie);
     });
 
     return res.json({ message: "탈퇴가 완료되었습니다." });
@@ -287,7 +293,7 @@ const kakaoWithdrawal = async (req, res, next) => {
 
     // 사용자 정보 삭제
     await prisma.users.delete({
-      where: { userId: +req.user },
+      where: { userId: +userId },
     });
 
     // 모든 쿠키 제거
