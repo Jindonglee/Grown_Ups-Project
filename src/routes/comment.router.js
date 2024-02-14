@@ -16,7 +16,7 @@ router.post(
     const { content } = req.body;
 
     // 게시글 존재 여부 확인
-    const post = await prisma.post.findFirst({
+    const post = await prisma.posts.findFirst({
       where: {
         postId: +postId,
       },
@@ -27,9 +27,9 @@ router.post(
     }
 
     // 댓글 작성자 정보
-    const author = await prisma.user.findUnique({
+    const author = await prisma.users.findUnique({
       where: {
-        id: userId,
+        userId: userId,
       },
     });
 
@@ -65,7 +65,7 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
   const { page = 1, perPage = 10 } = req.query;
 
   // 게시글 존재 여부 확인
-  const post = await prisma.post.findFirst({
+  const post = await prisma.posts.findFirst({
     where: {
       postId: +postId,
     },
@@ -92,9 +92,9 @@ router.get("/posts/:postId/comments", async (req, res, next) => {
   }
 
   // 댓글 작성자 정보
-  const authors = await prisma.user.findMany({
+  const authors = await prisma.users.findMany({
     where: {
-      id: {
+      userId: {
         in: comments.map((comment) => comment.userId),
       },
     },
@@ -127,7 +127,7 @@ router.put(
     const { content } = req.body;
 
     // 게시글 존재 여부 확인
-    const post = await prisma.post.findFirst({
+    const post = await prisma.posts.findFirst({
       where: {
         postId: +postId,
       },
@@ -179,10 +179,10 @@ router.delete(
   "/posts/:postId/comments/:commentId",
   authMiddleware,
   async (req, res, next) => {
-    const { commentId } = req.params;
+    const { postId, commentId } = req.params;
 
     // 게시글 존재 여부 확인
-    const post = await prisma.post.findFirst({
+    const post = await prisma.posts.findFirst({
       where: {
         postId: +postId,
       },
@@ -198,6 +198,16 @@ router.delete(
         commentId: +commentId,
       },
     });
+
+    if(!comment) {
+        return res.status(404).json({message: "존재하지 않는 댓글입니다."});
+    }
+
+    await prisma.comments.delete({
+        where: {commentId: comment.commentId}
+    })
+
+    return res.status(200).json({message: "댓글 삭제 완료."});
   }
 );
 

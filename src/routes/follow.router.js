@@ -173,8 +173,6 @@ router.get("/follow/:userId", async (req, res, next) => {
     where: { followerId: user.userId },
   });
 
-  console.log(follower, following);
-
   return res.status(200).json({ follower: follower, following: following });
 });
 

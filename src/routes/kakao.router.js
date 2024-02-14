@@ -118,10 +118,48 @@ router.get("/kakao/sign-in", async (req, res, next) => {
   }
 });
 
+// 카카오 엑세스 토큰 재발급
+
+router.get("/kakao/token", async (req, res, next) => {
+  const { kakao_refresh_token } = req.cookies;
+  if (!kakao_refresh_token) {
+    res.status(400).json({ message: "카카오 리프레시 토큰이 없습니다." });
+  }
+  try {
+    const baseUrl = "https://kauth.kakao.com/oauth/token";
+    const config = {
+      client_id: process.env.KAKAO_ID, //restAPI 키
+      grant_type: "refresh_token",
+      refresh_token: kakao_refresh_token,
+      client_secret: process.env.KAKAO_SECRET,
+    };
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = `${baseUrl}?${params}`;
+    const kakaoTokenRequest = await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        "Content-type": "application/x-www-form-urlencoded",
+      },
+    });
+    const kakaoTokenData = await kakaoTokenRequest.json();
+    console.log(kakaoTokenData);
+
+    res.cookie("kakao_access_token", kakaoTokenData.access_token, {
+      maxAge: kakaoTokenData.expires_in * 1000,
+    });
+
+    return res
+      .status(201)
+      .json({ message: "카카오 엑세스토큰이 발급되었습니다." });
+  } catch (err) {
+    next(err);
+  }
+});
+
 /** 네이버 로그인 */
 let redirectURI = encodeURI(process.env.NAVER_REDIRECT);
 
-router.get("/naver/sign-up", function (req, res) {
+router.get("/naver/sign-up", async function (req, res) {
   try {
     const baseUrl = "https://nid.naver.com/oauth2.0/authorize";
     const config = {
@@ -222,6 +260,46 @@ router.get("/naver/sign-in", async (req, res, next) => {
     }
   } catch (error) {
     next(error);
+  }
+});
+
+// 네이버 엑세스 토큰 재발급
+
+router.get("/naver/token", async (req, res, next) => {
+  const { naver_refresh_token } = req.cookies;
+  if (!naver_refresh_token) {
+    res.status(400).json({ message: "네이버 리프레시 토큰이 없습니다." });
+  }
+  try {
+    const baseUrl = "https://nid.naver.com/oauth2.0/token";
+    const config = {
+      client_id: process.env.NAVER_ID, //restAPI 키
+      grant_type: "refresh_token",
+      refresh_token: naver_refresh_token,
+      client_secret: process.env.NAVER_SECRET,
+    };
+    const params = new URLSearchParams(config).toString();
+    const finalUrl = `${baseUrl}?${params}`;
+    const naverTokenRequest = await fetch(finalUrl, {
+      method: "POST",
+      headers: {
+        "X-Naver-Client-Id": process.env.NAVER_ID,
+        "X-Naver-Client-Secret": process.env.NAVER_SECRET,
+        "Content-type": "text/json;charset=utf-8",
+      },
+    });
+    const naverTokenData = await naverTokenRequest.json();
+    console.log(naverTokenData);
+
+    res.cookie("kakao_access_token", naverTokenData.access_token, {
+      maxAge: naverTokenData.expires_in * 1000,
+    });
+
+    return res
+      .status(201)
+      .json({ message: "네이버 엑세스토큰이 발급되었습니다." });
+  } catch (err) {
+    next(err);
   }
 });
 
