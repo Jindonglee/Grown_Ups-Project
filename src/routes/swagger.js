@@ -350,6 +350,8 @@ const specs = swaggereJsdoc(options);
  *      - post
  *      summary: 이미지 업로드
  *      description: 이미지 업로드
+ *      consumes:
+ *        - multipart/form-data
  *      parameters:
  *        - name: postId
  *          in: path
@@ -357,6 +359,17 @@ const specs = swaggereJsdoc(options);
  *          required: true
  *          schema:
  *            type: integer
+ *      requestBody:
+ *        content:
+ *          multipart/form-data:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                photos:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                    format: binary
  *      produces:
  *      - application/json
  *      responses:
@@ -364,6 +377,74 @@ const specs = swaggereJsdoc(options);
  *        description: 이미지 업로드 성공
  *       404:
  *        description: 게시글 조회 실패
+ *    delete:
+ *      tags:
+ *      - post
+ *      summary: 이미지 삭제
+ *      description: 이미지 삭제
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: 이미지 삭제 할 postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                thumbnailId:
+ *                  type: string
+ *                  example: "first, second, third, ..."
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 이미지 삭제 성공
+ *       404:
+ *        description: 게시글 조회 실패 / 썸네일 이미지 조회 불가
+ *       500:
+ *        description: 이미지 삭제 중 오류 발생
+ *    put:
+ *      tags:
+ *      - post
+ *      summary: 이미지 수정
+ *      description: 이미지 수정
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: 이미지 수정 할 postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *      requestBody:
+ *        content:
+ *          multipart/form-data:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                thumbnailId:
+ *                  required: true
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                photos:
+ *                  type: array
+ *                  items:
+ *                    type: string
+ *                    format: binary
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 이미지 수정 성공
+ *       404:
+ *        description: 게시글 조회 실패 / 썸네일 이미지 조회 불가 / 파일 크기 10MB 초과
+ *       500:
+ *        description: 이미지 업로드 중 오류 발생
  *  /api/save-emoji/{postId}:
  *    post:
  *      tags:
@@ -385,7 +466,7 @@ const specs = swaggereJsdoc(options);
  *              type: object
  *              properties:
  *                emojiCode:
- *                  type: integer
+ *                  type: string
  *      produces:
  *      - application/json
  *      responses:
@@ -395,6 +476,30 @@ const specs = swaggereJsdoc(options);
  *        description: 게시글 조회 실패
  *       500:
  *        description: 이모지 저장 중 오류 발생
+ *  /api/cancel-emoji:
+ *    post:
+ *      tags:
+ *      - post
+ *      summary: 이모지 취소
+ *      description: 이모지 취소
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                postLikedId:
+ *                  type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 이모지 취소 성공
+ *       404:
+ *        description: 본인이 등록한 이미지가 아님
+ *       500:
+ *        description: 이모지 취소 중 오류 발생
  *  /api/posts:
  *    post:
  *      tags:
@@ -442,6 +547,38 @@ const specs = swaggereJsdoc(options);
  *      responses:
  *       200:
  *        description: 게시글 조회 성공
+ *  /api/category:
+ *    get:
+ *      tags:
+ *      - post
+ *      summary: 카테고리 별 게시글 조회
+ *      description: 카테고리 별 게시글 조회
+ *      parameters:
+ *        - name: category
+ *          in: query
+ *          description: 카테고리 입력
+ *          required: true
+ *          schema:
+ *            type: string
+ *        - name: orderKey
+ *          in: query
+ *          description: 정렬 기준 입력 (default = createdAt)
+ *          required: false
+ *          schema:
+ *            type: string
+ *        - name: orderValue
+ *          in: query
+ *          description: ASC or DESC 공백은 DESC 처리
+ *          required: false
+ *          schema:
+ *            type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 게시글 조회 성공
+ *       404:
+ *        description: 게시글 조회 실패
  *  /api/posts/{postId}:
  *    get:
  *      tags:
@@ -513,6 +650,128 @@ const specs = swaggereJsdoc(options);
  *        description: 게시글 삭제 성공
  *       404:
  *        description: 게시글 조회 실패
+ *  /api/posts/{postId}/comments:
+ *    post:
+ *      tags:
+ *      - comment
+ *      summary: 댓글 생성
+ *      description: 댓글 생성
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                content:
+ *                  type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       201:
+ *        description: 댓글 생성 완료
+ *       404:
+ *        description: 게시글이 존재하지 않습니다.
+ *    get:
+ *      tags:
+ *      - comment
+ *      summary: 댓글 조회
+ *      description: 댓글 조회
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *        - name: page
+ *          in: query
+ *          description: page 입력
+ *          required: false
+ *          schema:
+ *            type: integer
+ *        - name: perPage
+ *          in: query
+ *          description: 한 페이지에 볼 댓글 갯수
+ *          required: false
+ *          schema:
+ *            type: integer
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 댓글 조회 완료
+ *       404:
+ *        description: 게시글이 존재하지 않습니다.
+ *  /api/posts/{postId}/comments/{commentId}:
+ *    put:
+ *      tags:
+ *      - comment
+ *      summary: 댓글 수정
+ *      description: 댓글 수정
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *        - name: commentId
+ *          in: path
+ *          description: commentId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              type: object
+ *              properties:
+ *                content:
+ *                  type: string
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 댓글 수정 완료
+ *       404:
+ *        description: 게시글이 존재하지 않습니다.
+ *       500:
+ *        description: 댓글 수정 실패
+ *    delete:
+ *      tags:
+ *      - comment
+ *      summary: 댓글 삭제
+ *      description: 댓글 삭제
+ *      parameters:
+ *        - name: postId
+ *          in: path
+ *          description: postId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *        - name: commentId
+ *          in: path
+ *          description: commentId 입력
+ *          required: true
+ *          schema:
+ *            type: integer
+ *      produces:
+ *      - application/json
+ *      responses:
+ *       200:
+ *        description: 댓글 삭제 완료
+ *       404:
+ *        description: 게시글이 존재하지 않습니다.
  */
 
 export { swaggerUi, specs };
