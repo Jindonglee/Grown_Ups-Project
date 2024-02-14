@@ -89,7 +89,6 @@ router.post("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
       thumbnailDataArray.push(createdThumbnail);
     }
 
-    console.log(req.file);
     res.status(200).json({
       success: true,
       message: "이미지가 성공적으로 업로드되었습니다",
@@ -123,8 +122,7 @@ router.post("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
 router.delete("/endpoint/:postId", authMiddleware, async (req, res) => {
   const userId = req.user.userId;
   const { postId } = req.params;
-  const {thumbnailId} = req.body;
-  console.log(thumbnailId);
+  const { thumbnailId } = req.body;
   const arr = thumbnailId.split(", ");
 
   const post = await prisma.posts.findFirst({
@@ -185,8 +183,6 @@ router.put("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
   const userId = req.user.userId;
   const thumbnailId = req.body.thumbnailId;
   const arr = thumbnailId.split(", ");
-
-  console.log("머야이거 = ", thumbnailId, arr);
 
   try {
     const post = await prisma.posts.findFirst({
@@ -311,8 +307,6 @@ router.post("/save-emoji/:postId", authMiddleware, async (req, res) => {
   const postId = req.params.postId;
   const emojiCode = req.body.emojiCode;
 
-  console.log(emojiCode);
-
   const post = await prisma.posts.findFirst({
     where: {
       postId: +postId,
@@ -334,7 +328,7 @@ router.post("/save-emoji/:postId", authMiddleware, async (req, res) => {
       data: {
         emojiCode: emojiCode,
         postId: +postId,
-        userId: +userId
+        userId: +userId,
       },
     });
 

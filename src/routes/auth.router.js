@@ -27,9 +27,13 @@ router.post("/token", async (req, res) => {
     process.env.ACCESS_TOKEN_SECRET_KEY,
     { expiresIn: "12h" }
   );
-  const newRefreshToken = jwt.sign({ userId: user.userId }, process.env.REFRESH_TOKEN_SECRET_KEY, {
-    expiresIn: "7d",
-  });
+  const newRefreshToken = jwt.sign(
+    { userId: user.userId },
+    process.env.REFRESH_TOKEN_SECRET_KEY,
+    {
+      expiresIn: "7d",
+    }
+  );
 
   return res.json({
     accessToken: newAccessToken,
