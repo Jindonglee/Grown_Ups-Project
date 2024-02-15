@@ -62,6 +62,7 @@ router.post("/users/sign-up", async (req, res, next) => {
         age,
         oneliner,
         status,
+        technology,
         isEmailValid: false,
       },
     });
@@ -158,6 +159,9 @@ router.post("/users/login", async (req, res, next) => {
     }
   );
 
+  res.cookie('authorization', `Bearer ${accessToken}`);
+  res.cookie('refreshToken', `Brearer ${refreshToken}`);
+
   return res.json({
     accessToken,
     refreshToken,
@@ -186,11 +190,11 @@ router.get("/me", authMiddleware, async (req, res, next) => {
 });
 
 // 내정보 수정
-router.patch("/me/:userId", async (req, res, next) => {
+router.patch("/me/:userId", authMiddleware, async (req, res, next) => {
   try {
-    const userId = parseInt(req.params.userId);
+    const {userId} = req.user;
 
-    const { age, oneliner, status, technology, password } = req.body;
+    const { name, age, oneliner, status, technology, password } = req.body;
 
     // 유저 비밀번호 추출
     const user = await prisma.users.findFirst({
@@ -212,7 +216,7 @@ router.patch("/me/:userId", async (req, res, next) => {
     const updatedUser = await prisma.users.update({
       where: { userId: userId },
       data: {
-        password,
+        name,
         age,
         oneliner,
         status,
