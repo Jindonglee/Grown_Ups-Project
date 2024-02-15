@@ -3,14 +3,24 @@
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
+  "scripts": {
+    "dev": "nodemon ./src/app.js",
+    "start": "node ./src/app.js"
+  },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.511.0",
     "@prisma/client": "^5.9.1",
+    "aws-sdk": "^2.1553.0",
     "bcrypt": "^5.1.1",
     "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.18.2",
     "joi": "^17.12.1",
     "jsonwebtoken": "^9.0.2",
+    "multer": "^1.4.5-lts.1",
+    "multer-s3": "^2.10.0",
+    "nodemailer": "^6.9.9",
     "prisma": "^5.9.1",
     "winston": "^3.11.0"
   },
@@ -18,8 +28,10 @@
   "devDependencies": {
     "add": "^2.0.6",
     "nodemon": "^3.0.3",
+    "prettier": "^3.2.5",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
     "yarn": "^1.22.21"
-  }
+  },
+  "repository": "https://github.com/Jindonglee/Grown_Ups-Project.git"
 }

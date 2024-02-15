@@ -1,13 +1,9 @@
-import express from "express";
-import UsersRouter from "./routes/user.router.js";
+import { PrismaClient } from "@prisma/client";
 
-const app = express();
-const PORT = 3000;
+export const prisma = new PrismaClient({
+  // Prisma를 이용해 데이터베이스를 접근할 때, SQL을 출력해줍니다.
+  log: ["query", "info", "warn", "error"],
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use("/users", UsersRouter);
-
-app.listen(PORT, () => {
-  console.log(PORT, "포트로 서버가 열렸어요!");
-});
+  // 에러 메시지를 평문이 아닌, 개발자가 읽기 쉬운 형태로 출력해줍니다.
+  errorFormat: "pretty",
+}); // PrismaClient 인스턴스를 생성합니다.
