@@ -178,7 +178,7 @@ const specs = swaggereJsdoc(options);
  *      tags:
  *      - social-login
  *      summary: 카카오 계정 로그인
- *      description: 카카오 계정 로그인 [인증 페이지로](https://jd-develop.shop/api/kakao/sign-up) 카카오 인증페이지로 이동.
+ *      description: 카카오 계정 로그인 [인증 페이지로](http://localhost:3000/api/kakao/sign-up) 카카오 인증페이지로 이동.
  *      produces:
  *      - application/json
  *      responses:

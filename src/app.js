@@ -10,11 +10,21 @@ import errorHandlingMiddleware from "./middlewares/error-handling.middleware.js"
 import cookieParser from "cookie-parser";
 import { swaggerUi, specs } from "./routes/swagger.js";
 import dotenv from "dotenv";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const PORT = 3000;
+
+const corsOptions = {
+  origin: ["http://jd-develop.shop:3000", "https://jd-develop.shop"],
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  optionsSuccessStatus: 204,
+};
+
+app.use(cors(corsOptions));
 
 app.use(logMiddleware);
 app.use(express.json());
