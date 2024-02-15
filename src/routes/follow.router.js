@@ -190,7 +190,10 @@ router.get("/recommend", authMiddleware, async (req, res, next) => {
   if (!tech.technology)
     return res.status(400).json({ message: "technology 데이터가 없습니다." });
 
-  const techData = JSON.parse(tech.technology);
+  
+
+  const techData = tech.technology.split(", ");
+  // JSON.parse(tech.technology);
 
   const recommendUser = await prisma.users.findMany({
     where: {
