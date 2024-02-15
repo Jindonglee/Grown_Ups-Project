@@ -93,6 +93,7 @@ router.get(
       select: {
         follower: {
           select: {
+            userId: true,
             name: true,
           },
         },
@@ -144,6 +145,7 @@ router.get(
       select: {
         following: {
           select: {
+            userId: true,
             name: true,
           },
         },
