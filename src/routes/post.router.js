@@ -272,7 +272,7 @@ router.put("/endpoint/:postId", authMiddleware, uploadS3, async (req, res) => {
     });
 
     console.log("이미지가 성공적으로 수정되었습니다.");
-    res.status(200).json({
+    return res.status(200).json({
       success: true,
       message: "이미지가 성공적으로 수정되었습니다",
       data: thumbnailDataArray,
@@ -400,6 +400,7 @@ router.post("/posts", authMiddleware, async (req, res, next) => {
 /** 게시글 조회 API */
 router.get("/posts", authMiddleware, async (req, res, next) => {
   let { orderKey, orderValue } = req.query;
+  const { page = 1, perPage = 10 } = req.query;
 
   if (!orderKey) orderKey = "createdAt";
 
@@ -437,6 +438,8 @@ router.get("/posts", authMiddleware, async (req, res, next) => {
     orderBy: {
       [orderKey]: orderValue,
     },
+    take: +perPage,
+    skip: (page - 1) * perPage,
   });
 
   return res.status(200).json({ data: post });
@@ -446,6 +449,7 @@ router.get("/posts", authMiddleware, async (req, res, next) => {
 router.get("/category", async (req, res, next) => {
   const { category } = req.query;
   let { orderValue, orderKey } = req.query;
+  const { page = 1, perPage = 10 } = req.query;
 
   if (!orderKey) orderKey = "createdAt";
 
@@ -479,6 +483,8 @@ router.get("/category", async (req, res, next) => {
     orderBy: {
       [orderKey]: orderValue,
     },
+    take: +perPage,
+    skip: (page - 1) * perPage,
   });
 
   return res.status(200).json({ data: post });

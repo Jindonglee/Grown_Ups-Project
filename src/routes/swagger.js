@@ -70,28 +70,6 @@ const specs = swaggereJsdoc(options);
  *        description: 이미 존재하는 이메일입니다.
  *       400:
  *        description: 요청 값 올바르지 않음.
- *  /api/users/validation:
- *    get:
- *      tags:
- *      - users
- *      summary: 이메일 인증
- *      description: 이메일 인증 처리
- *      parameters:
- *        - name: email
- *          in: query
- *          description: 인증 이메일 입력
- *          required: true
- *          schema:
- *            type: string
- *      produces:
- *      - application/json
- *      responses:
- *       201:
- *        description: 인증 성공
- *       400:
- *        description: 오류 발생
- *       412:
- *        description: 이메일 인증 오류 발생
  *  /api/users/login:
  *    post:
  *      tags:
@@ -178,7 +156,7 @@ const specs = swaggereJsdoc(options);
  *      tags:
  *      - social-login
  *      summary: 카카오 계정 로그인
- *      description: 카카오 계정 로그인 [인증 페이지로](https://jd-develop.shop/api/kakao/sign-up) 카카오 인증페이지로 이동.
+ *      description: 카카오 계정 로그인 [인증 페이지로](http://localhost:3000/api/kakao/sign-up) 카카오 인증페이지로 이동.
  *      produces:
  *      - application/json
  *      responses:
@@ -542,6 +520,18 @@ const specs = swaggereJsdoc(options);
  *          required: false
  *          schema:
  *            type: string
+ *        - name: page
+ *          in: query
+ *          description: page 입력
+ *          required: false
+ *          schema:
+ *            type: integer
+ *        - name: perPage
+ *          in: query
+ *          description: 한 페이지에 볼 댓글 갯수
+ *          required: false
+ *          schema:
+ *            type: integer
  *      produces:
  *      - application/json
  *      responses:
@@ -572,6 +562,18 @@ const specs = swaggereJsdoc(options);
  *          required: false
  *          schema:
  *            type: string
+ *        - name: page
+ *          in: query
+ *          description: page 입력
+ *          required: false
+ *          schema:
+ *            type: integer
+ *        - name: perPage
+ *          in: query
+ *          description: 한 페이지에 볼 댓글 갯수
+ *          required: false
+ *          schema:
+ *            type: integer
  *      produces:
  *      - application/json
  *      responses:
