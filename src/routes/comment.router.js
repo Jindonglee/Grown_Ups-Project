@@ -125,6 +125,7 @@ router.put(
   async (req, res, next) => {
     const { postId, commentId } = req.params;
     const { content } = req.body;
+    const { userId } = req.user;
 
     // 게시글 존재 여부 확인
     const post = await prisma.posts.findFirst({
@@ -149,6 +150,10 @@ router.put(
     }
 
     // 댓글 작성자 확인 (추후 구현)
+    if (comment.userId !== userId)
+      return res
+        .status(400)
+        .json({ message: "자신의 댓글만 수정 가능합니다." });
 
     // 댓글 내용 수정
     const updatedComment = await prisma.comments.update({
@@ -180,6 +185,7 @@ router.delete(
   authMiddleware,
   async (req, res, next) => {
     const { postId, commentId } = req.params;
+    const { userId } = req.user;
 
     // 게시글 존재 여부 확인
     const post = await prisma.posts.findFirst({
@@ -198,6 +204,15 @@ router.delete(
         commentId: +commentId,
       },
     });
+
+    if (!comment) {
+      return res.status(404).json({ message: "댓글이 존재하지 않습니다." });
+    }
+
+    if (comment.userId !== userId)
+      return res
+        .status(400)
+        .json({ message: "자신의 댓글만 삭제 가능합니다." });
 
     if (!comment) {
       return res.status(404).json({ message: "존재하지 않는 댓글입니다." });
