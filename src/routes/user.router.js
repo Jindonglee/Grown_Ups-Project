@@ -12,6 +12,8 @@ const { email_service, nodemailer_user, nodemailer_pass } = process.env;
 
 const transporter = nodemailer.createTransport({
   service: email_service,
+  host: "smtp.gmail.com",
+  port: 587,
   auth: {
     user: nodemailer_user,
     pass: nodemailer_pass,
